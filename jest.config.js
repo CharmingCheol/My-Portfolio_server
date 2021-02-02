@@ -10,5 +10,7 @@ module.exports = {
     "@routes/(.*)": "<rootDir>/src/routes/$1",
     "@services/(.*)": "<rootDir>/src/services/$1",
     "@utils/(.*)": "<rootDir>/src/utils/$1",
+    "!app": "<rootDir>/src/app",
   },
+  setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
 };
