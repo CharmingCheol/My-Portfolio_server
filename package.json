@@ -5,11 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/app.ts",
-    "test": "jest"
+    "test": "jest NODE_PATH=test"
   },
   "author": "cha min cheol",
   "license": "ISC",
   "dependencies": {
+    "clone-deep": "^4.0.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -19,6 +20,7 @@
     "multer": "^1.4.2"
   },
   "devDependencies": {
+    "@types/clone-deep": "^4.0.1",
     "@types/cors": "^2.8.9",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.9",
