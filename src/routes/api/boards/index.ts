@@ -1,10 +1,11 @@
 import { Router } from "express";
+import { validateErrorHandler } from "@utils/errorHandler";
 import * as controllers from "./controllers";
 import * as validators from "./validators";
 
 const router = Router();
 
 router.post("/", validators.createBoard, controllers.createBoards);
-router.get("/:id", validators.getBoardById, controllers.getBoardById);
+router.get("/:id", validators.getBoardById, validateErrorHandler, controllers.getBoardById);
 
 export default router;
