@@ -5,7 +5,7 @@ import * as validators from "./validators";
 
 const router = Router();
 
-router.post("/", validators.createBoard, controllers.createBoards);
+router.post("/", validators.createBoard, validateErrorHandler, controllers.createBoards);
 router.get("/:id", validators.getBoardById, validateErrorHandler, controllers.getBoardById);
 
 export default router;
