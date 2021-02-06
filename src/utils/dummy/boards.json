@@ -1,5 +1,6 @@
 {
   "body": "테스트 본문",
+  "category": "React",
   "hashtag": ["해", "시", "태", "그"],
   "title": "테스트 제목"
 }

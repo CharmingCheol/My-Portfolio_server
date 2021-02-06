@@ -11,6 +11,16 @@ export default [
     .trim()
     .exists({ checkFalsy: true })
     .withMessage("body is not exists"),
+  body("category")
+    .exists({ checkFalsy: true })
+    .withMessage("category is not exists")
+    .bail() // stop
+    .isString()
+    .withMessage("category must be string type")
+    .bail() // stop
+    .trim()
+    .exists({ checkFalsy: true })
+    .withMessage("category is not exists"),
   body("hashtag")
     .isArray({ min: 1 })
     .withMessage("hashtag is required at least one")
