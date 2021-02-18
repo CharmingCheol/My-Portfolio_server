@@ -1,5 +1,6 @@
 import express from "express";
 import morgan from "morgan";
+import cors from "cors";
 import models from "@models/index";
 import routes from "@routes/api";
 import { internelServerErrorHandler } from "@utils/errorHandler";
@@ -7,6 +8,7 @@ import { internelServerErrorHandler } from "@utils/errorHandler";
 const app: express.Application = express();
 
 models();
+app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
