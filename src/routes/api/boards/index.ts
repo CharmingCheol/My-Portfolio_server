@@ -9,9 +9,9 @@ const router = Router();
 // 게시글 추가
 router.post(
   "/",
-  middlewares.checkSpecialSymbols({ method: "body", key: "category" }),
   validators.createBoard,
   validateErrorHandler,
+  middlewares.checkSpecialSymbols({ method: "body", key: "category" }),
   controllers.createBoards,
 );
 
@@ -22,8 +22,8 @@ router.get("/", validators.getBoards, validateErrorHandler, controllers.getBoard
 router.get(
   "/:category",
   validators.getCategoryBoards,
-  middlewares.checkSpecialSymbols({ method: "params", key: "category" }),
   validateErrorHandler,
+  middlewares.checkSpecialSymbols({ method: "params", key: "category" }),
   controllers.getCategoryBoards,
 );
 
@@ -31,8 +31,8 @@ router.get(
 router.get(
   "/:category/:id",
   validators.getBoardById,
-  middlewares.checkSpecialSymbols({ method: "params", key: "category" }),
   validateErrorHandler,
+  middlewares.checkSpecialSymbols({ method: "params", key: "category" }),
   controllers.getBoardById,
 );
 

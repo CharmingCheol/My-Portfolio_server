@@ -21,6 +21,14 @@ export default [
     .trim()
     .exists({ checkFalsy: true })
     .withMessage("category is not exists"),
+  body("thumbnail")
+    .trim()
+    .exists({ checkFalsy: true })
+    .withMessage("thumbnail is not exists")
+    .bail() // stop
+    .isURL()
+    .withMessage("thumbnail must be URL")
+    .bail(), // stop
   body("hashtag")
     .isArray({ min: 1 })
     .withMessage("hashtag is required at least one")

@@ -66,6 +66,24 @@ describe("createBoard Validator", () => {
     await checkBodyData(board, "hashtag must be string type");
   });
 
+  it("thumbnail이 없을 경우 error message를 전달한다", async () => {
+    const board = cloneDeep(boardsDummy);
+    delete board.thumbnail;
+    await checkBodyData(board, "thumbnail is not exists");
+  });
+
+  it("thumbnail이 string이 아닐 경우, error message를 전달한다", async () => {
+    const board = cloneDeep(boardsDummy) as any;
+    board.thumbnail = 111;
+    await checkBodyData(board, "thumbnail must be URL");
+  });
+
+  it("thumbnail이 url type이 아닐 경우, error message를 전달한다", async () => {
+    const board = cloneDeep(boardsDummy) as any;
+    board.thumbnail = "ㅇㄴㄹㄴㅇㄹㄴㅇㄹ";
+    await checkBodyData(board, "thumbnail must be URL");
+  });
+
   it("title이 없을 경우 error message를 전달한다", async () => {
     const board = cloneDeep(boardsDummy);
     delete board.title;

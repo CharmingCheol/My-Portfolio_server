@@ -13,6 +13,10 @@ const BoardsSchema = new mongoose.Schema(
     hashtag: {
       type: [String],
     },
+    thumbnail: {
+      type: String,
+      required: true,
+    },
     title: {
       type: String,
       required: true,
