@@ -27,6 +27,13 @@ router.get(
   controllers.getCategoryBoards,
 );
 
+// 카테고리 게시글 갯수 불러오기
+router.get(
+  "/count/:category",
+  middlewares.checkSpecialSymbols({ method: "params", key: "category" }),
+  controllers.getCategoryBoardsCount,
+);
+
 // 카테고리에 속한 게시글 불러오기
 router.get(
   "/:category/:id",
