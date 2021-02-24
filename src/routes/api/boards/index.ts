@@ -15,6 +15,16 @@ router.post(
   controllers.createBoards,
 );
 
+// 게시글 수정
+router.put(
+  "/:category/:id",
+  validators.updateBoard,
+  validateErrorHandler,
+  middlewares.checkSpecialSymbols({ method: "body", key: "category" }),
+  middlewares.checkSpecialSymbols({ method: "params", key: "category" }),
+  controllers.updateBoard,
+);
+
 // 전체 게시글 불러오기
 router.get("/", validators.getBoards, validateErrorHandler, controllers.getBoards);
 
