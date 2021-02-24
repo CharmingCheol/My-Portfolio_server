@@ -9,7 +9,7 @@ export default () => {
     mongoose
       .connect(
         `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@cluster0.iwkbq.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`,
-        { useNewUrlParser: true, useUnifiedTopology: true },
+        { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true },
       )
       .then(() => console.log("mongoDB connected"))
       .catch((err) => console.error(err));
