@@ -1,4 +1,12 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
+
+interface BoardsType extends Document {
+  body: string;
+  category: string;
+  hashtag: string[];
+  thumbnail: string;
+  title: string;
+}
 
 const BoardsSchema = new mongoose.Schema(
   {
@@ -12,6 +20,7 @@ const BoardsSchema = new mongoose.Schema(
     },
     hashtag: {
       type: [String],
+      required: true,
     },
     thumbnail: {
       type: String,
@@ -22,9 +31,9 @@ const BoardsSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: { createdAt: "created_at" } },
+  { timestamps: { createdAt: "createdAt" } },
 );
 
-const Boards = mongoose.model("Boards", BoardsSchema);
+const Boards = mongoose.model<BoardsType>("Boards", BoardsSchema);
 
 export default Boards;
