@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { DEFAULT_PAGE_INDEX, PAGE_SIZE } from "@utils/const";
 
 interface IParameters {
-  model: mongoose.Model<mongoose.Document<any>>;
+  model: mongoose.Model<any>;
   page: number;
 }
 

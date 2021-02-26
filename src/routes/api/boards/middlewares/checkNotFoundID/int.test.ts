@@ -9,7 +9,7 @@ describe("CheckNotFoundID Middleware Integration Test", () => {
     게시글 삭제를 예시로 진행  
   */
   it("존재하지 않은 ID를 전달 할 경우 404와 메시지를 전달한다", async () => {
-    const response = await request(app).delete(`/api/boards/${WRONG_TEST_ID}`);
+    const response = await request(app).delete(`/api/boards/React/${WRONG_TEST_ID}`);
     expect(response.status).toBe(NOT_FOUND);
     expect(response.body).toStrictEqual({ message: NOT_FOUND_ID });
   });

@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { validateErrorHandler } from "@utils/errorHandler";
-import * as controllers from "./controllers";
 import * as middlewares from "@routes/middlewares";
+import * as boardMiddleware from "./middlewares";
+import * as controllers from "./controllers";
 import * as validators from "./validators";
 
 const router = Router();
@@ -22,7 +23,18 @@ router.put(
   validateErrorHandler,
   middlewares.checkSpecialSymbols({ method: "body", key: "category" }),
   middlewares.checkSpecialSymbols({ method: "params", key: "category" }),
+  boardMiddleware.checkNotFoundID,
   controllers.updateBoard,
+);
+
+// 게시글 삭제
+router.delete(
+  "/:category/:id",
+  validators.deleteBoard,
+  validateErrorHandler,
+  middlewares.checkSpecialSymbols({ method: "params", key: "category" }),
+  boardMiddleware.checkNotFoundID,
+  controllers.deleteBoard,
 );
 
 // 전체 게시글 불러오기
@@ -50,6 +62,7 @@ router.get(
   validators.getBoardById,
   validateErrorHandler,
   middlewares.checkSpecialSymbols({ method: "params", key: "category" }),
+  boardMiddleware.checkNotFoundID,
   controllers.getBoardById,
 );
 

@@ -9,7 +9,7 @@ describe("getCategorys Integration Test", () => {
     expect(Array.isArray(response.body)).toBeTruthy();
     response.body.forEach((category) => {
       const keys = Object.keys(category);
-      expect(keys).toStrictEqual(["_id", "category", "__v"]);
+      expect(keys).toStrictEqual(["_id", "category", "count", "__v"]);
     });
   });
 });

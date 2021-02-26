@@ -1,7 +1,7 @@
 import request from "supertest";
 import cloneDeep from "clone-deep";
 import { CREATED, NOT_FOUND } from "http-status";
-import { NOT_FOUND_CATEGORY, NOT_FOUND_ID, OK_TEST_ID, WRONG_TEST_ID } from "@utils/const";
+import { NOT_FOUND_CATEGORY, OK_TEST_ID } from "@utils/const";
 import dummy from "@utils/dummy/boards.json";
 import app from "!app";
 
@@ -11,6 +11,8 @@ describe("updateBoard Intergration Test", () => {
       - middlewares/checkSpecialSymbols에서 category 테스트 완료
      2.카테고리 텍스트 변환
       - utils/replaceCategory에서 테스트 완료
+     3.수정 할 게시글 ID 검사
+      - boards/middlewares/checkNotFoundID에서 확인
   */
   it("NOT_FOUND_CATEGORY를 전달받을 경우, 404와 메시지를 리턴한다", async () => {
     const dummyData = cloneDeep(dummy);
@@ -18,12 +20,6 @@ describe("updateBoard Intergration Test", () => {
     const response = await request(app).put(`/api/boards/${dummyData.category}/${OK_TEST_ID}`).send(dummyData);
     expect(response.status).toBe(NOT_FOUND);
     expect(response.body).toStrictEqual({ message: NOT_FOUND_CATEGORY });
-  });
-
-  it("NOT_FOUND_ID를 전달받을 경우, 404와 메시지를 리턴한다", async () => {
-    const response = await request(app).put(`/api/boards/${dummy.category}/${WRONG_TEST_ID}`).send(dummy);
-    expect(response.status).toBe(NOT_FOUND);
-    expect(response.body).toStrictEqual({ message: NOT_FOUND_ID });
   });
 
   it("문제점이 없을 경우 수정 된 데이터와 201을 리턴한다", async () => {
