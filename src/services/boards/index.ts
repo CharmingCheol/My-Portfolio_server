@@ -37,6 +37,7 @@ class BoardsService {
     const pageIndex = await checkPageNumber({ model: boardsModel, page });
     const result = await boardsModel
       .find({})
+      .sort({ createdAt: -1 })
       .skip((pageIndex - 1) * PAGE_SIZE)
       .limit(PAGE_SIZE);
     return result;
@@ -47,6 +48,7 @@ class BoardsService {
     const pageIndex = await checkPageNumber({ model: boardsModel, page });
     const boardList = await boardsModel
       .find({ category })
+      .sort({ createdAt: -1 })
       .skip((pageIndex - 1) * PAGE_SIZE)
       .limit(PAGE_SIZE);
     return boardList;
