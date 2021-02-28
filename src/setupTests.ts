@@ -2,13 +2,15 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 
 dotenv.config();
-const { DB_USERNAME, DB_PASSWORD, DB_NAME } = process.env;
+const { DEV_DB_USERNAME, DEV_DB_PASSWORD, DEV_DB_NAME, NODE_ENV } = process.env;
 
 beforeEach(async () => {
-  await mongoose
-    .connect(
-      `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@cluster0.iwkbq.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`,
-      { useNewUrlParser: true, useUnifiedTopology: true },
-    )
-    .catch((e) => console.error(e));
+  if (NODE_ENV === "test") {
+    await mongoose
+      .connect(
+        `mongodb+srv://${DEV_DB_USERNAME}:${DEV_DB_PASSWORD}@cluster0.iwkbq.mongodb.net/${DEV_DB_NAME}?retryWrites=true&w=majority`,
+        { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true },
+      )
+      .catch((e) => console.error(e));
+  }
 });
