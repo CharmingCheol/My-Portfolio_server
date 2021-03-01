@@ -19,8 +19,8 @@ app.use(morgan("dev"));
 app.use("/api", routes);
 app.use(internelServerErrorHandler);
 
-app.get("/", () => {
-  console.log("서버 동작 확인");
+app.get("/", (_, res) => {
+  res.send("서버 동작 확인");
 });
 
 app.listen(PORT || 3001, () => console.log(`server listening ${PORT || 3001} port`));
