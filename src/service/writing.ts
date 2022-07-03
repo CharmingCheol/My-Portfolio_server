@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityNotFoundError, Repository } from 'typeorm';
 
@@ -50,17 +50,31 @@ class WritingService {
     }
   }
 
-  async updateWriting(id: string, updateData: WritingRequestDto): Promise<WritingModel> {
+  async updateWriting(id: string, updateData: Partial<WritingRequestDto>): Promise<WritingModel> {
     try {
       const writing = await this.usersRepository.findOne({ id });
       if (!writing) {
         throw new EntityNotFoundError(WritingModel, id);
+      }
+      if (this.isSubset(writing, updateData)) {
+        throw new BadRequestException();
       }
       const result = await this.usersRepository.save({ ...writing, ...updateData });
       return result;
     } catch (error) {
       throw error;
     }
+  }
+
+  private isSubset<O extends { [key: string]: any }>(superset: O, subset: O) {
+    let count = 0;
+    const subsetKeys = Object.keys(subset);
+    subsetKeys.forEach((key) => {
+      if (superset[key] === subset[key]) {
+        count += 1;
+      }
+    });
+    return count === subsetKeys.length;
   }
 
   async deleteWriting(id: string): Promise<void> {

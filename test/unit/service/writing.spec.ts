@@ -5,6 +5,7 @@ import { EntityNotFoundError, Repository } from 'typeorm';
 import WritingService from 'service/writing';
 import WritingModel from 'model/writing';
 import { WritingRequestDto, WritingResponseDto } from 'dto/writing';
+import { BadRequestException } from '@nestjs/common';
 
 type MockType<T> = {
   [P in keyof T]?: jest.Mock<any>;
@@ -137,6 +138,32 @@ describe('WritingService', () => {
       expect(async () => await writingService.updateWriting(id, updateData)).rejects.toThrowError(
         new EntityNotFoundError(WritingModel, id),
       );
+    });
+
+    describe('업데이트 데이터가 findOne으로 찾은 게시글에 포함되어 있는 경우 BadRequestException를 던진다', () => {
+      it('content data', () => {
+        const updateData: Partial<WritingRequestDto> = { content: 'content' };
+        repositoryMock.findOne.mockReturnValue(foundWriting);
+        expect(async () => await writingService.updateWriting(id, updateData)).rejects.toThrowError(
+          new BadRequestException(),
+        );
+      });
+
+      it('title data', () => {
+        const updateData: Partial<WritingRequestDto> = { title: 'title' };
+        repositoryMock.findOne.mockReturnValue(foundWriting);
+        expect(async () => await writingService.updateWriting(id, updateData)).rejects.toThrowError(
+          new BadRequestException(),
+        );
+      });
+
+      it('full data', () => {
+        const updateData: Partial<WritingRequestDto> = { content: 'content', title: 'title' };
+        repositoryMock.findOne.mockReturnValue(foundWriting);
+        expect(async () => await writingService.updateWriting(id, updateData)).rejects.toThrowError(
+          new BadRequestException(),
+        );
+      });
     });
 
     it('게시글을 찾은 경우 repository.save를 호출 한다', async () => {
