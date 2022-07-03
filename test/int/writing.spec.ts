@@ -97,6 +97,13 @@ describe('writing controller', () => {
         const result = await request(app.getHttpServer()).patch(`${prefix}/adasdadads`);
         expect(result.statusCode).toBe(HttpStatus.BAD_REQUEST);
       });
+
+      it('UUID를 찾지 못할 경우 404 statusCode를 반환 한다', async () => {
+        const updateData: WritingRequestDto = { content: 'update', title: 'update' };
+        const tempUUID = '745cf77c-fae5-11ec-b939-0242ac120002';
+        const result = await request(app.getHttpServer()).patch(`${prefix}/${tempUUID}`).send(updateData);
+        expect(result.statusCode).toBe(HttpStatus.NOT_FOUND);
+      });
     });
 
     describe('content validation', () => {
@@ -151,13 +158,6 @@ describe('writing controller', () => {
         expect(result.statusCode).toBe(HttpStatus.BAD_REQUEST);
       });
 
-      it('업데이트 할 게시글을 찾지 못할 경우 404 statusCode를 반환 한다', async () => {
-        const updateData: WritingRequestDto = { content: 'update', title: 'update' };
-        const tempUUID = '745cf77c-fae5-11ec-b939-0242ac120002';
-        const result = await request(app.getHttpServer()).patch(`${prefix}/${tempUUID}`).send(updateData);
-        expect(result.statusCode).toBe(HttpStatus.NOT_FOUND);
-      });
-
       it('업데이트 데이터가 id로 찾은 게시글 데이터와 같은 경우 400 HttpCode를 반환 한다', async () => {
         const create: WritingRequestDto = { content: 'create', title: 'create' };
         const writing = await request(app.getHttpServer()).post(`${prefix}`).send(create);
@@ -182,7 +182,5 @@ describe('writing controller', () => {
     });
   });
 
-  describe(`${prefix}/:id (DELETE)`, () => {
-    it('', async () => {});
-  });
+  describe(`${prefix}/:id (DELETE)`, () => {});
 });
