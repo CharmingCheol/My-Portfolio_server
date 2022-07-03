@@ -120,59 +120,57 @@ describe('WritingService', () => {
 
   describe('updateWriting', () => {
     const id = '1';
-    const updateData: WritingRequestDto = { content: 'content', title: 'title' };
     const foundWriting: WritingResponseDto = {
-      content: updateData.content,
-      title: updateData.title,
+      content: 'content',
+      title: 'title',
       id: '1',
       createdAt: new Date(),
     };
 
     it('updateWriting 호출 시 repository.udpate가 호출 된다', () => {
-      writingService.updateWriting(id, updateData);
+      writingService.updateWriting(id, { content: 'content', title: 'title' });
       expect(repositoryMock.findOne).toHaveBeenCalledWith({ id });
     });
 
     it('findOne의 검색 결과가 없을 경우 EntityNotFoundError를 throw 한다', () => {
       repositoryMock.findOne.mockReturnValue(undefined);
-      expect(async () => await writingService.updateWriting(id, updateData)).rejects.toThrowError(
-        new EntityNotFoundError(WritingModel, id),
-      );
+      expect(
+        async () => await writingService.updateWriting(id, { content: 'content', title: 'title' }),
+      ).rejects.toThrowError(new EntityNotFoundError(WritingModel, id));
     });
 
     describe('업데이트 데이터가 findOne으로 찾은 게시글에 포함되어 있는 경우 BadRequestException를 던진다', () => {
       it('content data', () => {
-        const updateData: Partial<WritingRequestDto> = { content: 'content' };
         repositoryMock.findOne.mockReturnValue(foundWriting);
-        expect(async () => await writingService.updateWriting(id, updateData)).rejects.toThrowError(
+        expect(async () => await writingService.updateWriting(id, { content: 'content' })).rejects.toThrowError(
           new BadRequestException(),
         );
       });
 
       it('title data', () => {
-        const updateData: Partial<WritingRequestDto> = { title: 'title' };
         repositoryMock.findOne.mockReturnValue(foundWriting);
-        expect(async () => await writingService.updateWriting(id, updateData)).rejects.toThrowError(
+        expect(async () => await writingService.updateWriting(id, { title: 'title' })).rejects.toThrowError(
           new BadRequestException(),
         );
       });
 
       it('full data', () => {
-        const updateData: Partial<WritingRequestDto> = { content: 'content', title: 'title' };
         repositoryMock.findOne.mockReturnValue(foundWriting);
-        expect(async () => await writingService.updateWriting(id, updateData)).rejects.toThrowError(
-          new BadRequestException(),
-        );
+        expect(
+          async () => await writingService.updateWriting(id, { content: 'content', title: 'title' }),
+        ).rejects.toThrowError(new BadRequestException());
       });
     });
 
     it('게시글을 찾은 경우 repository.save를 호출 한다', async () => {
+      const updateData: Partial<WritingRequestDto> = { content: 'cvcvcv', title: 'asasas' };
       repositoryMock.findOne.mockReturnValue(foundWriting);
       await writingService.updateWriting(id, updateData);
       expect(repositoryMock.save).toHaveBeenCalledWith({ ...foundWriting, ...updateData });
     });
 
     it('updateData에 맞게 게시글 데이터가 업데이트 된다', async () => {
+      const updateData: Partial<WritingRequestDto> = { content: 'cvcvcv', title: 'asasas' };
       repositoryMock.findOne.mockReturnValue(foundWriting);
       repositoryMock.save.mockReturnValue({ ...foundWriting, ...updateData });
       const result = await writingService.updateWriting(id, updateData);
@@ -181,12 +179,16 @@ describe('WritingService', () => {
 
     it('예상치 못하게 findOne에서 문제가 생길 경우 에러를 던진다', () => {
       repositoryMock.findOne.mockRejectedValue(new Error('unexcepted error'));
-      expect(async () => await writingService.updateWriting(id, updateData)).rejects.toThrowError('unexcepted error');
+      expect(async () => await writingService.updateWriting(id, { content: 'content' })).rejects.toThrowError(
+        'unexcepted error',
+      );
     });
 
     it('예상치 못하게 save에서 문제가 생길 경우 에러를 던진다', () => {
       repositoryMock.save.mockRejectedValue(new Error('unexcepted error'));
-      expect(async () => await writingService.updateWriting(id, updateData)).rejects.toThrowError('unexcepted error');
+      expect(async () => await writingService.updateWriting(id, { title: 'title' })).rejects.toThrowError(
+        'unexcepted error',
+      );
     });
   });
 
