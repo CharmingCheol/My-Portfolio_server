@@ -52,7 +52,7 @@ class WritingController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    return this.writingService.deleteWriting(id);
+    await this.writingService.deleteWriting(id);
   }
 }
 
