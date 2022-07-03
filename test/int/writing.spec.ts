@@ -182,5 +182,18 @@ describe('writing controller', () => {
     });
   });
 
-  describe(`${prefix}/:id (DELETE)`, () => {});
+  describe(`${prefix}/:id (DELETE)`, () => {
+    describe('id valiation', () => {
+      it('id의 타입이 uuid가 아닌 경우 400 HttpCode를 반환 한다', async () => {
+        const result = await request(app.getHttpServer()).delete(`${prefix}/adasdadads`);
+        expect(result.statusCode).toBe(HttpStatus.BAD_REQUEST);
+      });
+
+      it('UUID를 찾지 못할 경우 404 HttpCode를 반환 한다', async () => {
+        const tempUUID = '745cf77c-fae5-11ec-b939-0242ac120002';
+        const result = await request(app.getHttpServer()).delete(`${prefix}/${tempUUID}`);
+        expect(result.statusCode).toBe(HttpStatus.NOT_FOUND);
+      });
+    });
+  });
 });
