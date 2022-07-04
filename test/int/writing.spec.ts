@@ -24,12 +24,38 @@ describe('writing controller', () => {
     await app.close();
   });
 
-  describe(`${prefix}/:id (GET)`, () => {
+  describe(`${prefix}?page=page (GET)`, () => {
     it('', async () => {});
   });
 
-  describe(`${prefix}?page=page (GET)`, () => {
-    it('', async () => {});
+  describe(`${prefix}/:id (GET)`, () => {
+    describe('id validation', () => {
+      it('id의 타입이 uuid가 아닌 경우 400 HttpCode를 반환 한다', async () => {
+        const result = await request(app.getHttpServer()).get(`${prefix}/adasdadads`);
+        expect(result.statusCode).toBe(HttpStatus.BAD_REQUEST);
+      });
+
+      it('UUID를 찾지 못할 경우 404 statusCode를 반환 한다', async () => {
+        const tempUUID = '745cf77c-fae5-11ec-b939-0242ac120002';
+        const result = await request(app.getHttpServer()).get(`${prefix}/${tempUUID}`);
+        expect(result.statusCode).toBe(HttpStatus.NOT_FOUND);
+      });
+    });
+
+    describe('게시글 찾기 feature', () => {
+      it('id에 맞는 게시글을 찾는다', async () => {
+        const data1: WritingRequestDto = { content: 'content1', title: 'title1' };
+        const writing1 = await request(app.getHttpServer()).post(`${prefix}`).send(data1);
+
+        const data2: WritingRequestDto = { content: 'content2', title: 'title2' };
+        const writing2 = await request(app.getHttpServer()).post(`${prefix}`).send(data2);
+
+        const result = await request(app.getHttpServer()).get(`${prefix}/${writing1.body.id}`);
+        expect(result.statusCode).toBe(HttpStatus.OK);
+        expect(result.body).toStrictEqual(writing1.body);
+        expect(result.body).not.toStrictEqual(writing2.body);
+      });
+    });
   });
 
   describe(`${prefix} (POST)`, () => {
