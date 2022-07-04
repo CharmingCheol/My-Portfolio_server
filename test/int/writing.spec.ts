@@ -195,5 +195,15 @@ describe('writing controller', () => {
         expect(result.statusCode).toBe(HttpStatus.NOT_FOUND);
       });
     });
+
+    describe('게시글 삭제 feature', () => {
+      it('id에 맞는 게시글이 삭제 된다', async () => {
+        const data: WritingRequestDto = { content: 'content', title: 'title' };
+        const createdWriting = await request(app.getHttpServer()).post(`${prefix}`).send(data);
+        const result = await request(app.getHttpServer()).delete(`${prefix}/${createdWriting.body.id}`);
+        expect(result.statusCode).toBe(HttpStatus.NO_CONTENT);
+        expect(result.body).toStrictEqual({});
+      });
+    });
   });
 });
