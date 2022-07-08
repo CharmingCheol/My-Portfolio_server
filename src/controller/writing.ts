@@ -17,6 +17,7 @@ import { WritingRequestDto } from 'dto/writing';
 import WritingModel from 'model/writing';
 import WritingService from 'service/writing';
 import BodyLengthValidationPipe from 'utils/bodyLengthValidationPipe';
+import PageUnderZeroPipe from 'utils/pageUnderZeroPipe';
 
 @Controller('writings')
 class WritingController {
@@ -30,7 +31,7 @@ class WritingController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async pagination(@Query('page', ParseIntPipe) page: number): Promise<[WritingModel[], number]> {
+  async pagination(@Query('page', ParseIntPipe, PageUnderZeroPipe) page: number): Promise<[WritingModel[], number]> {
     return await this.writingService.findWritingsByPageNumber(page);
   }
 

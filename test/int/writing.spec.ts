@@ -25,7 +25,19 @@ describe('writing controller', () => {
   });
 
   describe(`${prefix}?page=page (GET)`, () => {
-    it('', async () => {});
+    describe('page validation', () => {
+      it('page 쿼리 스트링이 int가 아닐 경우 400 HttpCode를 반환 한다', async () => {
+        const result = await request(app.getHttpServer()).get(`${prefix}?page=a`);
+        expect(result.statusCode).toBe(HttpStatus.BAD_REQUEST);
+      });
+
+      it('page 쿼리 스트링이 1보다 작을 경우 400 HttpCode를 반환 한다', async () => {
+        const zeroPage = await request(app.getHttpServer()).get(`${prefix}?page=0`);
+        const minusPage = await request(app.getHttpServer()).get(`${prefix}?page=-1`);
+        expect(zeroPage.statusCode).toBe(HttpStatus.BAD_REQUEST);
+        expect(minusPage.statusCode).toBe(HttpStatus.BAD_REQUEST);
+      });
+    });
   });
 
   describe(`${prefix}/:id (GET)`, () => {
