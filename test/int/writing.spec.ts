@@ -38,6 +38,13 @@ describe('writing controller', () => {
         expect(minusPage.statusCode).toBe(HttpStatus.BAD_REQUEST);
       });
     });
+
+    describe('게시글 pagination feature', () => {
+      it('게시글 리스트를 찾지 못할 경우 404 HttpCode를 반환 한다', async () => {
+        const result = await request(app.getHttpServer()).get(`${prefix}?page=1`);
+        expect(result.statusCode).toBe(HttpStatus.NOT_FOUND);
+      });
+    });
   });
 
   describe(`${prefix}/:id (GET)`, () => {
