@@ -5,6 +5,44 @@ import * as request from 'supertest';
 
 import AppModule from 'app.module';
 import { WritingRequestDto } from 'dto/writing';
+import WritingModel from 'model/writing';
+
+class Writings {
+  prefix = '/api/writings';
+  app: INestApplication;
+  writings: WritingModel[] = [];
+
+  constructor(app: INestApplication) {
+    this.app = app;
+  }
+
+  async createByCount(count: number) {
+    const data: WritingRequestDto = { content: 'content', title: 'title' };
+    const writings = await Promise.all(
+      Array(count)
+        .fill(0)
+        .map(async () => {
+          const writing = await request(this.app.getHttpServer()).post(`${this.prefix}`).send(data);
+          return writing.body;
+        }),
+    );
+    this.writings = writings;
+    return this;
+  }
+
+  sortCreatedAtDesc() {
+    const writings = [...this.writings].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+    this.writings = writings;
+    return this;
+  }
+
+  slice(start: number, end: number) {
+    this.writings = this.writings.slice(start - 1, end);
+    return this;
+  }
+}
 
 describe('writing controller', () => {
   const prefix = '/api/writings';
@@ -43,6 +81,26 @@ describe('writing controller', () => {
       it('게시글 리스트를 찾지 못할 경우 404 HttpCode를 반환 한다', async () => {
         const result = await request(app.getHttpServer()).get(`${prefix}?page=1`);
         expect(result.statusCode).toBe(HttpStatus.NOT_FOUND);
+      });
+
+      describe('게시글 갯수 10개 이하', () => {
+        it('page가 1인 경우 전체 200 HttpCode를 반환 한다', async () => {
+          await new Writings(app).createByCount(8);
+          const result = await request(app.getHttpServer()).get(`${prefix}?page=1`);
+          expect(result.statusCode).toBe(HttpStatus.OK);
+        });
+
+        it('생성일자 기준으로 내림차순 정렬이다', async () => {
+          const { writings } = (await new Writings(app).createByCount(8)).sortCreatedAtDesc();
+          const result = await request(app.getHttpServer()).get(`${prefix}?page=1`);
+          expect(result.body).toStrictEqual(writings);
+        });
+
+        it('page가 2 이상인 경우 404 HttpCode를 반환 한다', async () => {
+          await new Writings(app).createByCount(8);
+          const result = await request(app.getHttpServer()).get(`${prefix}?page=2`);
+          expect(result.statusCode).toStrictEqual(HttpStatus.NOT_FOUND);
+        });
       });
     });
   });
