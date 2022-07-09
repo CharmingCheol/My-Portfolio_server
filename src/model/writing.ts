@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeor
 
 import { Writing } from 'types/writing';
 
-@Entity({ name: 'Writing' })
+@Entity()
 class WritingModel implements Writing {
   @CreateDateColumn()
   createdAt: Date;
