@@ -12,15 +12,15 @@ class WritingService {
     private usersRepository: Repository<WritingModel>,
   ) {}
 
-  async findWritingsByPageNumber(pageNumber: number): Promise<[WritingModel[], number]> {
+  async findWritingsByPageNumber(pageNumber: number): Promise<WritingModel[]> {
     try {
       const size = 10;
-      const result = await this.usersRepository.findAndCount({
+      const result = await this.usersRepository.find({
         take: size,
         skip: (pageNumber - 1) * size,
         order: { createdAt: 'DESC' },
       });
-      if (result[1] === 0) {
+      if (result.length === 0) {
         throw new EntityNotFoundError(WritingModel, pageNumber);
       }
       return result;

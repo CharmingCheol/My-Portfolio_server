@@ -12,7 +12,7 @@ type MockType<T> = {
 };
 
 const repositoryMockFactory = jest.fn(() => ({
-  findAndCount: jest.fn((entity) => entity),
+  find: jest.fn((entity) => entity),
   findOne: jest.fn((entity) => entity),
   save: jest.fn((entity) => entity),
   delete: jest.fn((entity) => entity),
@@ -39,32 +39,31 @@ describe('WritingService', () => {
   describe('findWritingsByPageNumber', () => {
     const pageNumber = 1;
 
-    it('findWritingsByPageNumber 메서드 호출 시 repository.findAndCount가 호출 된다', () => {
+    it('findWritingsByPageNumber 메서드 호출 시 repository.find가 호출 된다', () => {
       const size = 10;
       const options = { take: size, skip: (pageNumber - 1) * size, order: { createdAt: 'DESC' } };
       writingService.findWritingsByPageNumber(pageNumber);
-      expect(repositoryMock.findAndCount).toHaveBeenCalledWith(options);
+      expect(repositoryMock.find).toHaveBeenCalledWith(options);
     });
 
     it('메서드 반환 값으로 게시글 리스트를 반환 한다', async () => {
       const writings = Array(10)
         .fill(0)
         .map<WritingResponseDto>(() => ({ title: 'title', content: 'content', createdAt: new Date(), id: '1' }));
-      const result = [writings, writings.length];
-      repositoryMock.findAndCount.mockReturnValue(result);
-      expect(await writingService.findWritingsByPageNumber(pageNumber)).toStrictEqual(result);
+      repositoryMock.find.mockReturnValue(writings);
+      expect(await writingService.findWritingsByPageNumber(pageNumber)).toStrictEqual(writings);
     });
 
-    it('findAndCount 검색 결과가 없을 경우 EntityNotFoundError를 throw 한다', () => {
-      repositoryMock.findAndCount.mockReturnValue([[], 0]);
+    it('find 검색 결과가 없을 경우 EntityNotFoundError를 throw 한다', () => {
+      repositoryMock.findAndCount.mockReturnValue([[]]);
       expect(async () => await writingService.findWritingsByPageNumber(pageNumber)).rejects.toThrowError(
         new EntityNotFoundError(WritingModel, pageNumber),
       );
     });
 
-    it('예상치 못하게 findAndCount에서 문제가 생길 경우 에러를 던진다', () => {
+    it('예상치 못하게 find에서 문제가 생길 경우 에러를 던진다', () => {
       const error = new Error('unexcepted error');
-      repositoryMock.findAndCount.mockRejectedValue(error);
+      repositoryMock.find.mockRejectedValue(error);
       expect(async () => await writingService.findWritingsByPageNumber(pageNumber)).rejects.toThrowError(error);
     });
   });
