@@ -102,6 +102,46 @@ describe('writing controller', () => {
           expect(result.statusCode).toStrictEqual(HttpStatus.NOT_FOUND);
         });
       });
+
+      describe('게시글 갯수 11개 이상 ~ 20개 이하', () => {
+        it('page가 1일 때 가장 최근에 생성 된 게시글 10개를 불러온다', async () => {
+          const totalSize = 17;
+          const { writings } = (await new Writings(app).createByCount(totalSize)).sortCreatedAtDesc().slice(1, 10);
+          const result = await request(app.getHttpServer()).get(`${prefix}?page=1`);
+          expect(result.statusCode).toBe(HttpStatus.OK);
+          expect(result.body.length).toBe(10);
+          expect(result.body).toStrictEqual(writings);
+        });
+
+        it('page가 2일 때 나머지 게시글들을 불러온다', async () => {
+          const totalSize = 17;
+          const { writings } = (await new Writings(app).createByCount(totalSize))
+            .sortCreatedAtDesc()
+            .slice(11, totalSize);
+          const result = await request(app.getHttpServer()).get(`${prefix}?page=2`);
+          expect(result.statusCode).toBe(HttpStatus.OK);
+          expect(result.body.length).toBe(totalSize - 10);
+          expect(result.body).toStrictEqual(writings);
+        });
+
+        it('게시글 갯수가 20이고 page가 2일 때, 게시글 10개를 불러온다', async () => {
+          const totalSize = 20;
+          const { writings } = (await new Writings(app).createByCount(totalSize))
+            .sortCreatedAtDesc()
+            .slice(11, totalSize);
+          const result = await request(app.getHttpServer()).get(`${prefix}?page=2`);
+          expect(result.statusCode).toBe(HttpStatus.OK);
+          expect(result.body.length).toBe(totalSize - 10);
+          expect(result.body).toStrictEqual(writings);
+        });
+
+        it('게시글 갯수가 20이고 page가 3일 때, 404 HttpCode를 반환 한다', async () => {
+          const totalSize = 20;
+          await new Writings(app).createByCount(totalSize);
+          const result = await request(app.getHttpServer()).get(`${prefix}?page=3`);
+          expect(result.statusCode).toBe(HttpStatus.NOT_FOUND);
+        });
+      });
     });
   });
 
