@@ -31,7 +31,7 @@ class WritingController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async pagination(@Query('page', ParseIntPipe, PageUnderZeroPipe) page: number): Promise<[WritingModel[], number]> {
+  async pagination(@Query('page', ParseIntPipe, PageUnderZeroPipe) page: number): Promise<WritingModel[]> {
     return await this.writingService.findWritingsByPageNumber(page);
   }
 

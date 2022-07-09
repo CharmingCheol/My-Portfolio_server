@@ -57,9 +57,9 @@ describe('WritingController', () => {
       const writings = Array(10)
         .fill(0)
         .map<WritingResponseDto>(() => ({ title: 'title', content: 'content', createdAt: new Date(), id: '1' }));
-      writingService.findWritingsByPageNumber.mockReturnValue([writings, writings.length]);
+      writingService.findWritingsByPageNumber.mockReturnValue(writings);
       const result = await writingController.pagination(page);
-      expect(result).toStrictEqual([writings, writings.length]);
+      expect(result).toStrictEqual(writings);
     });
   });
 
