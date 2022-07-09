@@ -55,7 +55,7 @@ describe('WritingService', () => {
     });
 
     it('find 검색 결과가 없을 경우 EntityNotFoundError를 throw 한다', () => {
-      repositoryMock.findAndCount.mockReturnValue([[]]);
+      repositoryMock.find.mockReturnValue([]);
       expect(async () => await writingService.findWritingsByPageNumber(pageNumber)).rejects.toThrowError(
         new EntityNotFoundError(WritingModel, pageNumber),
       );
