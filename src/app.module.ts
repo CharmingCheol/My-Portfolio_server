@@ -7,7 +7,7 @@ import * as Joi from 'joi';
 import { typeOrmOptions } from 'model';
 import WritingModule from 'module/writing.module';
 import ImageModule from 'module/image.module';
-import HttpExceptionFilter from 'utils/httpExceptionFilter';
+import HttpExceptionFilter from 'filter/httpExceptionFilter';
 
 @Module({
   imports: [

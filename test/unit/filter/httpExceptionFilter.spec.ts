@@ -2,7 +2,7 @@ import { ArgumentsHost, HttpStatus } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { EntityNotFoundError } from 'typeorm';
 
-import HttpExceptionFilter from 'utils/httpExceptionFilter';
+import HttpExceptionFilter from 'filter/httpExceptionFilter';
 import WritingModel from 'model/writing';
 
 const mockJson = jest.fn().mockReturnThis();
