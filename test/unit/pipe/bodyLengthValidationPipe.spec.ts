@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import BodyLengthValidationPipe from 'utils/bodyLengthValidationPipe';
+import BodyLengthValidationPipe from 'pipe/bodyLengthValidationPipe';
 
 describe('BodyLengthValidationPipe', () => {
   it('Body 객체의 길이가 0인 경우 BadRequestException를 반환 한다', () => {

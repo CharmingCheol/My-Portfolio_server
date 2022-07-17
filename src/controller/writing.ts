@@ -16,7 +16,7 @@ import {
 import { WritingRequestDto } from 'dto/writing';
 import WritingModel from 'model/writing';
 import WritingService from 'service/writing';
-import BodyLengthValidationPipe from 'utils/bodyLengthValidationPipe';
+import BodyLengthValidationPipe from 'pipe/bodyLengthValidationPipe';
 import PageUnderZeroPipe from 'utils/pageUnderZeroPipe';
 
 @Controller('writings')
