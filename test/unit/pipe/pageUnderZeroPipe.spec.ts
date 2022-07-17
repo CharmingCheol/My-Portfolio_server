@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import PageUnderZeroPipe from 'utils/pageUnderZeroPipe';
+import PageUnderZeroPipe from 'pipe/pageUnderZeroPipe';
 
 describe('PageUnderZeroPipe', () => {
   it('page가 1보다 작을 경우 BadRequestException를 반환 한다', () => {
