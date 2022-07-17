@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 class ImageService {
   constructor(private configService: ConfigService) {}
 
-  uploadImage(filename: string) {
+  createImageURL(filename: string) {
     const env = this.configService.get<'dev' | 'prod'>('NODE_ENV');
     if (env === 'dev') {
       return `http://localhost:3001/images/${filename}`;
