@@ -1,17 +1,19 @@
-import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, HttpCode, HttpStatus, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import FileNullValiationPipe from 'pipe/file-null-validation.pipe';
 import ImageService from 'service/image';
-import multerStorage from 'utils/multerStorage';
+import multerOptions from 'utils/multerStorage';
 
 @Controller('images')
 class ImageController {
   constructor(private imageService: ImageService) {}
 
   @Post('writing')
-  @UseInterceptors(FileInterceptor('writing', { storage: multerStorage }))
-  uploadWritingImage(@UploadedFile() file: Express.Multer.File) {
-    return this.imageService.uploadImage(file.filename);
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(FileInterceptor('writing', multerOptions))
+  uploadWritingImage(@UploadedFile(new FileNullValiationPipe()) file: Express.Multer.File) {
+    return { path: this.imageService.createImageURL(file.filename) };
   }
 }
 
