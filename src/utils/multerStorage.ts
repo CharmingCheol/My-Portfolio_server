@@ -1,6 +1,7 @@
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { diskStorage } from 'multer';
 import { existsSync, mkdirSync } from 'fs';
+import { BadRequestException } from '@nestjs/common';
 
 const multerStorage = diskStorage({
   destination: (request, file, callback) => {
@@ -18,6 +19,13 @@ const multerStorage = diskStorage({
 
 const multerOptions: MulterOptions = {
   storage: multerStorage,
+  fileFilter: (request, file, callback) => {
+    if (file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+      callback(null, true);
+    } else {
+      callback(new BadRequestException('지원하지 않는 이미지 형식입니다.'), false);
+    }
+  },
 };
 
 export default multerOptions;
