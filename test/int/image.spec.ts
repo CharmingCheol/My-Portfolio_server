@@ -33,6 +33,13 @@ describe('ImageController', () => {
       expect(result.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
+    it('filed가 writing이 아닐 경우 400 HttpCode를 반환 한다', async () => {
+      const field = 'not_writing';
+      const filePath = `test/fixtures/test.jpg`;
+      const result = await request(app.getHttpServer()).post(`${prefix}/writing`).attach(field, filePath);
+      expect(result.statusCode).toBe(HttpStatus.BAD_REQUEST);
+    });
+
     it('파일 이름이 한글인 경우, 인코딩 된 형태로 저장 된다', async () => {
       const fileName = '테스트';
       const filePath = `test/fixtures/${fileName}.jpg`;
