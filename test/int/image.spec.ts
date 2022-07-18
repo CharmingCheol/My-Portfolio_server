@@ -40,13 +40,18 @@ describe('ImageController', () => {
       expect(result.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
+    it('이미지 파일을 받은 경우 정상적으로 저장 된다', async () => {
+      const fileName = 'test';
+      const filePath = `test/fixtures/${fileName}.jpg`;
+      const result = await request(app.getHttpServer()).post(`${prefix}/writing`).attach('writing', filePath);
+      expect(result.body.path).toContain(fileName);
+      expect(result.statusCode).toBe(HttpStatus.OK);
+    });
+
     it('파일 이름이 한글인 경우, 인코딩 된 형태로 저장 된다', async () => {
       const fileName = '테스트';
       const filePath = `test/fixtures/${fileName}.jpg`;
-      const result = await request(app.getHttpServer())
-        .post(`${prefix}/writing`)
-        .set('Content-Type', 'multipart/form-data')
-        .attach('writing', filePath);
+      const result = await request(app.getHttpServer()).post(`${prefix}/writing`).attach('writing', filePath);
       expect(result.body.path).toContain(encodeURIComponent(fileName));
       expect(result.statusCode).toBe(HttpStatus.OK);
     });
