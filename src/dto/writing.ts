@@ -5,11 +5,11 @@ import { Writing } from 'types/writing';
 export class WritingRequestDto implements Pick<Writing, 'content' | 'title'> {
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ example: 'content', required: true })
   content: string;
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ example: 'title', required: true })
   title: string;
 }
