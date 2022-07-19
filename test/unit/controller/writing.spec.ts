@@ -2,7 +2,8 @@ import { Test } from '@nestjs/testing';
 
 import WritingController from 'controller/writing';
 import WritingService from 'service/writing';
-import { WritingRequestDto, WritingResponseDto } from 'dto/writing';
+import WritingModel from 'model/writing';
+import { WritingRequestDto } from 'dto/writing';
 
 type MockType<T> = {
   [P in keyof T]?: jest.Mock<any>;
@@ -38,7 +39,7 @@ describe('WritingController', () => {
     });
 
     it('service.findWritingById 값을 반환 한다', async () => {
-      const writing: WritingResponseDto = { content: 'content', id: '1', title: 'title', createdAt: new Date() };
+      const writing: WritingModel = { content: 'content', id: '1', title: 'title', createdAt: new Date() };
       writingService.findWritingById.mockReturnValue(writing);
       const result = await writingController.findOne(id);
       expect(result).toStrictEqual(writing);
@@ -56,7 +57,7 @@ describe('WritingController', () => {
     it('service.pagination 값을 반환 한다', async () => {
       const writings = Array(10)
         .fill(0)
-        .map<WritingResponseDto>(() => ({ title: 'title', content: 'content', createdAt: new Date(), id: '1' }));
+        .map<WritingModel>(() => ({ title: 'title', content: 'content', createdAt: new Date(), id: '1' }));
       writingService.findWritingsByPageNumber.mockReturnValue(writings);
       const result = await writingController.pagination(page);
       expect(result).toStrictEqual(writings);
@@ -72,7 +73,7 @@ describe('WritingController', () => {
     });
 
     it('service.createWriting 값을 반환 한다', async () => {
-      const writing: WritingResponseDto = { ...data, id: '1', createdAt: new Date() };
+      const writing: WritingModel = { ...data, id: '1', createdAt: new Date() };
       writingService.createWriting.mockReturnValue(writing);
       const result = await writingController.create(data);
       expect(result).toStrictEqual(writing);

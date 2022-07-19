@@ -4,7 +4,7 @@ import { EntityNotFoundError, Repository } from 'typeorm';
 
 import WritingService from 'service/writing';
 import WritingModel from 'model/writing';
-import { WritingRequestDto, WritingResponseDto } from 'dto/writing';
+import { WritingRequestDto } from 'dto/writing';
 import { BadRequestException } from '@nestjs/common';
 
 type MockType<T> = {
@@ -49,7 +49,7 @@ describe('WritingService', () => {
     it('메서드 반환 값으로 게시글 리스트를 반환 한다', async () => {
       const writings = Array(10)
         .fill(0)
-        .map<WritingResponseDto>(() => ({ title: 'title', content: 'content', createdAt: new Date(), id: '1' }));
+        .map<WritingModel>(() => ({ title: 'title', content: 'content', createdAt: new Date(), id: '1' }));
       repositoryMock.find.mockReturnValue(writings);
       expect(await writingService.findWritingsByPageNumber(pageNumber)).toStrictEqual(writings);
     });
@@ -77,7 +77,7 @@ describe('WritingService', () => {
     });
 
     it('메서드 반환 값으로 게시글이 반환 된다', async () => {
-      const result: WritingResponseDto = { title: 'title', content: 'content', createdAt: new Date(), id };
+      const result: WritingModel = { title: 'title', content: 'content', createdAt: new Date(), id };
       repositoryMock.findOne.mockReturnValue(result);
       expect(await writingService.findWritingById(id)).toStrictEqual(result);
     });
@@ -98,7 +98,7 @@ describe('WritingService', () => {
 
   describe('createWriting', () => {
     const data: WritingRequestDto = { content: 'content', title: 'title' };
-    const result: WritingResponseDto = { content: data.content, title: data.title, id: '1', createdAt: new Date() };
+    const result: WritingModel = { content: data.content, title: data.title, id: '1', createdAt: new Date() };
 
     it('createWriting 메서드 호출 시 repository.save가 호출 된다', () => {
       writingService.createWriting(data);
@@ -119,12 +119,7 @@ describe('WritingService', () => {
 
   describe('updateWriting', () => {
     const id = '1';
-    const foundWriting: WritingResponseDto = {
-      content: 'content',
-      title: 'title',
-      id: '1',
-      createdAt: new Date(),
-    };
+    const foundWriting: WritingModel = { content: 'content', title: 'title', id: '1', createdAt: new Date() };
 
     it('updateWriting 호출 시 repository.udpate가 호출 된다', () => {
       writingService.updateWriting(id, { content: 'content', title: 'title' });
@@ -193,7 +188,7 @@ describe('WritingService', () => {
 
   describe('deleteWriting', () => {
     const id = '1';
-    const foundWriting: WritingResponseDto = { content: 'content', title: 'title', id: '1', createdAt: new Date() };
+    const foundWriting: WritingModel = { content: 'content', title: 'title', id: '1', createdAt: new Date() };
 
     it('updateWriting 호출 시 repository.udpate가 호출 된다', () => {
       writingService.deleteWriting(id);

@@ -10,13 +10,3 @@ export class WritingRequestDto implements Pick<Writing, 'content' | 'title'> {
   @IsNotEmpty()
   title: string;
 }
-
-export class WritingResponseDto implements Writing {
-  createdAt: Date;
-
-  id: string;
-
-  content: string;
-
-  title: string;
-}
