@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
-import { randomUUID } from 'crypto';
 import { Writing } from 'types/writing';
 
 @Entity()
@@ -10,15 +9,15 @@ class WritingModel implements Writing {
   createdAt: Date;
 
   @PrimaryGeneratedColumn('uuid')
-  @ApiProperty({ example: randomUUID() })
+  @ApiProperty({ example: 'uuid' })
   id: string;
 
   @Column()
-  @ApiProperty({ example: 'content' })
+  @ApiProperty({ example: '게시글의 본문입니다.', required: true })
   content: string;
 
   @Column()
-  @ApiProperty({ example: 'title' })
+  @ApiProperty({ example: '게시글의 제목입니다.', required: true })
   title: string;
 }
 
