@@ -4,12 +4,13 @@ import WritingController from 'controller/writing';
 import WritingService from 'service/writing';
 import WritingModel from 'model/writing';
 import { WritingRequestDto } from 'dto/writing';
+import { WritingPagination } from 'types/writing';
 
 type MockType<T> = {
   [P in keyof T]?: jest.Mock<any>;
 };
 
-const serviceMockFactory = jest.fn(() => ({
+const serviceMockFactory: () => MockType<WritingService> = jest.fn(() => ({
   findWritingsByPageNumber: jest.fn((entity) => entity),
   findWritingById: jest.fn((entity) => entity),
   createWriting: jest.fn((entity) => entity),
@@ -55,19 +56,22 @@ describe('WritingController', () => {
     });
 
     it('service.pagination 값을 반환 한다', async () => {
-      const writings = Array(10)
-        .fill(0)
-        .map<WritingModel>(() => ({ title: 'title', content: 'content', createdAt: new Date(), id: '1' }));
-      writingService.findWritingsByPageNumber.mockReturnValue(writings);
+      const writingPagination: WritingPagination = {
+        totalCount: 19,
+        list: Array(10)
+          .fill(0)
+          .map(() => new WritingModel()),
+      };
+      writingService.findWritingsByPageNumber.mockReturnValue(writingPagination);
       const result = await writingController.pagination(page);
-      expect(result).toStrictEqual(writings);
+      expect(result).toStrictEqual(writingPagination);
     });
   });
 
   describe('create', () => {
     const data: WritingRequestDto = { title: 'title', content: 'content' };
 
-    it('controller.crate 호출 시 service.createWriting가 호출 된다', () => {
+    it('controller.create 호출 시 service.createWriting가 호출 된다', () => {
       writingController.create(data);
       expect(writingService.createWriting).toHaveBeenCalledWith(data);
     });
@@ -90,7 +94,7 @@ describe('WritingController', () => {
     });
 
     it('service.updateWriting 값을 반환 한다', async () => {
-      const writing = { ...data, id: '1', createdAt: new Date().toISOString() };
+      const writing: WritingModel = { ...data, id: '1', createdAt: new Date() };
       writingService.updateWriting.mockReturnValue(writing);
       const result = await writingController.update(id, data);
       expect(result).toStrictEqual(writing);

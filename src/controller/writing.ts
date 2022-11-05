@@ -13,11 +13,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+
 import { WritingRequestDto } from 'dto/writing';
 import WritingModel from 'model/writing';
-import WritingService from 'service/writing';
 import BodyLengthValidationPipe from 'pipe/bodyLengthValidationPipe';
 import PageUnderZeroPipe from 'pipe/pageUnderZeroPipe';
+import WritingService from 'service/writing';
+import { WritingPagination } from 'types/writing';
 
 @Controller('writings')
 @ApiTags('Writings API')
@@ -36,7 +38,7 @@ class WritingController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '게시글 페이지네이션' })
   @ApiResponse({ status: HttpStatus.OK, type: [WritingModel] })
-  async pagination(@Query('page', ParseIntPipe, PageUnderZeroPipe) page: number): Promise<WritingModel[]> {
+  async pagination(@Query('page', ParseIntPipe, PageUnderZeroPipe) page: number): Promise<WritingPagination> {
     return await this.writingService.findWritingsByPageNumber(page);
   }
 
