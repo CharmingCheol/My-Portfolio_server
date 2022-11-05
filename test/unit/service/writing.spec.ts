@@ -159,34 +159,30 @@ describe('WritingService', () => {
 
   describe('deleteWriting', () => {
     const id = '1';
-    const writing: WritingModel = { content: 'content', title: 'title', id: '1', createdAt: new Date() };
-
-    it('updateWriting 호출 시 repository.udpate가 호출 된다', () => {
-      writingService.deleteWriting(id);
-      expect(repositoryMock.findOne).toHaveBeenCalledWith({ id });
-    });
 
     it('findOne의 검색 결과가 없을 경우 EntityNotFoundError를 throw 한다', () => {
-      repositoryMock.findOne.mockReturnValue(undefined);
-      expect(async () => await writingService.deleteWriting(id)).rejects.toThrow(
-        new EntityNotFoundError(WritingModel, id),
-      );
+      const error = new EntityNotFoundError(WritingModel, id);
+      repositoryMock.findOne.mockReturnValue(null);
+      expect(async () => await writingService.deleteWriting(id)).rejects.toThrowError(error);
     });
 
     it('게시글을 찾은 경우 repository.delete를 호출 한다', async () => {
+      const writing: WritingModel = { content: 'content', title: 'title', id: '1', createdAt: new Date() };
       repositoryMock.findOne.mockReturnValue(writing);
       await writingService.deleteWriting(id);
       expect(repositoryMock.delete).toHaveBeenCalledWith(id);
     });
 
     it('예상치 못하게 findOne에서 문제가 생길 경우 에러를 던진다', () => {
-      repositoryMock.findOne.mockRejectedValue(new Error('unexcepted error'));
-      expect(async () => await writingService.deleteWriting(id)).rejects.toThrowError('unexcepted error');
+      const error = new Error('unexcepted error');
+      repositoryMock.findOne.mockRejectedValue(error);
+      expect(async () => await writingService.deleteWriting(id)).rejects.toThrowError(error);
     });
 
     it('예상치 못하게 delete에서 문제가 생길 경우 에러를 던진다', () => {
-      repositoryMock.delete.mockRejectedValue(new Error('unexcepted error'));
-      expect(async () => await writingService.deleteWriting(id)).rejects.toThrowError('unexcepted error');
+      const error = new Error('unexcepted error');
+      repositoryMock.delete.mockRejectedValue(error);
+      expect(async () => await writingService.deleteWriting(id)).rejects.toThrowError(error);
     });
   });
 });
