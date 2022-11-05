@@ -92,14 +92,9 @@ describe('WritingService', () => {
 
   describe('createWriting', () => {
     const data: WritingRequestDto = { content: 'content', title: 'title' };
-    const result: WritingModel = { content: data.content, title: data.title, id: '1', createdAt: new Date() };
-
-    it('createWriting 메서드 호출 시 repository.save가 호출 된다', () => {
-      writingService.createWriting(data);
-      expect(repositoryMock.save).toHaveBeenCalledWith(data);
-    });
 
     it('create 호출 시 게시글이 정상적으로 추가된다', async () => {
+      const result: WritingModel = { content: data.content, title: data.title, id: '1', createdAt: new Date() };
       repositoryMock.save.mockReturnValue(result);
       expect(await writingService.createWriting(data)).toStrictEqual(result);
     });
