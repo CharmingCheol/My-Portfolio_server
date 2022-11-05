@@ -55,11 +55,10 @@ describe('WritingService', () => {
     });
 
     it('검색 결과가 없을 경우 EntityNotFoundError를 throw 한다', () => {
+      const error = new EntityNotFoundError(WritingModel, pageNumber);
       repositoryMock.count.mockReturnValue(0);
       repositoryMock.find.mockReturnValue([]);
-      expect(async () => await writingService.findWritingsByPageNumber(pageNumber)).rejects.toThrowError(
-        new EntityNotFoundError(WritingModel, pageNumber),
-      );
+      expect(async () => await writingService.findWritingsByPageNumber(pageNumber)).rejects.toThrowError(error);
     });
 
     it('예상치 못하게 문제가 생길 경우 에러를 던진다', () => {
@@ -72,11 +71,6 @@ describe('WritingService', () => {
   describe('findWritingById', () => {
     const id = '1';
 
-    it('findWritingById 호출 시 repository.findOne이 호출 된다', () => {
-      writingService.findWritingById(id);
-      expect(repositoryMock.findOne).toHaveBeenCalledWith({ id });
-    });
-
     it('메서드 반환 값으로 게시글이 반환 된다', async () => {
       const result: WritingModel = { title: 'title', content: 'content', createdAt: new Date(), id };
       repositoryMock.findOne.mockReturnValue(result);
@@ -84,10 +78,9 @@ describe('WritingService', () => {
     });
 
     it('findOne 검색 결과가 없을 경우 EntityNotFoundError를 throw 한다', () => {
-      repositoryMock.findOne.mockReturnValue(undefined);
-      expect(async () => await writingService.findWritingById(id)).rejects.toThrowError(
-        new EntityNotFoundError(WritingModel, id),
-      );
+      const error = new EntityNotFoundError(WritingModel, id);
+      repositoryMock.findOne.mockReturnValue(null);
+      expect(async () => await writingService.findWritingById(id)).rejects.toThrowError(error);
     });
 
     it('예상치 못하게 findOne에서 문제가 생길 경우 에러를 던진다', () => {
