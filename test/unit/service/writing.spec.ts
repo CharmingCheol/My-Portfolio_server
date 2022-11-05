@@ -1,17 +1,21 @@
 import { Test } from '@nestjs/testing';
+import { BadRequestException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EntityNotFoundError, Repository } from 'typeorm';
 
 import WritingService from 'service/writing';
 import WritingModel from 'model/writing';
 import { WritingRequestDto } from 'dto/writing';
-import { BadRequestException } from '@nestjs/common';
+import { WritingPagination } from 'types/writing';
 
 type MockType<T> = {
   [P in keyof T]?: jest.Mock<any>;
 };
 
-const repositoryMockFactory = jest.fn(() => ({
+type RepositoryMock = MockType<Repository<WritingModel>>;
+
+const repositoryMockFactory: () => RepositoryMock = jest.fn(() => ({
+  count: jest.fn((entity) => entity),
   find: jest.fn((entity) => entity),
   findOne: jest.fn((entity) => entity),
   save: jest.fn((entity) => entity),
@@ -20,7 +24,7 @@ const repositoryMockFactory = jest.fn(() => ({
 
 describe('WritingService', () => {
   let writingService: WritingService;
-  let repositoryMock: MockType<Repository<WritingModel>>;
+  let repositoryMock: RepositoryMock;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -39,29 +43,26 @@ describe('WritingService', () => {
   describe('findWritingsByPageNumber', () => {
     const pageNumber = 1;
 
-    it('findWritingsByPageNumber 메서드 호출 시 repository.find가 호출 된다', () => {
-      const size = 10;
-      const options = { take: size, skip: (pageNumber - 1) * size, order: { createdAt: 'DESC' } };
-      writingService.findWritingsByPageNumber(pageNumber);
-      expect(repositoryMock.find).toHaveBeenCalledWith(options);
-    });
-
-    it('메서드 반환 값으로 게시글 리스트를 반환 한다', async () => {
-      const writings = Array(10)
+    it('게시글 리스트와 총 갯수를 반환 한다', async () => {
+      const totalCount = 29;
+      const list = Array(10)
         .fill(0)
-        .map<WritingModel>(() => ({ title: 'title', content: 'content', createdAt: new Date(), id: '1' }));
-      repositoryMock.find.mockReturnValue(writings);
-      expect(await writingService.findWritingsByPageNumber(pageNumber)).toStrictEqual(writings);
+        .map(() => new WritingModel());
+      const result: WritingPagination = { totalCount, list };
+      repositoryMock.count.mockReturnValue(totalCount);
+      repositoryMock.find.mockReturnValue(list);
+      expect(await writingService.findWritingsByPageNumber(pageNumber)).toStrictEqual(result);
     });
 
-    it('find 검색 결과가 없을 경우 EntityNotFoundError를 throw 한다', () => {
+    it('검색 결과가 없을 경우 EntityNotFoundError를 throw 한다', () => {
+      repositoryMock.count.mockReturnValue(0);
       repositoryMock.find.mockReturnValue([]);
       expect(async () => await writingService.findWritingsByPageNumber(pageNumber)).rejects.toThrowError(
         new EntityNotFoundError(WritingModel, pageNumber),
       );
     });
 
-    it('예상치 못하게 find에서 문제가 생길 경우 에러를 던진다', () => {
+    it('예상치 못하게 문제가 생길 경우 에러를 던진다', () => {
       const error = new Error('unexcepted error');
       repositoryMock.find.mockRejectedValue(error);
       expect(async () => await writingService.findWritingsByPageNumber(pageNumber)).rejects.toThrowError(error);

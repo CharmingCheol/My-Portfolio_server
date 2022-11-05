@@ -4,6 +4,7 @@ import { EntityNotFoundError, Repository } from 'typeorm';
 
 import { WritingRequestDto } from 'dto/writing';
 import WritingModel from 'model/writing';
+import { WritingPagination } from 'types/writing';
 
 @Injectable()
 class WritingService {
@@ -12,18 +13,19 @@ class WritingService {
     private usersRepository: Repository<WritingModel>,
   ) {}
 
-  async findWritingsByPageNumber(pageNumber: number): Promise<WritingModel[]> {
+  async findWritingsByPageNumber(pageNumber: number): Promise<WritingPagination> {
     try {
       const size = 10;
-      const result = await this.usersRepository.find({
+      const totalCount = await this.usersRepository.count();
+      const list = await this.usersRepository.find({
         take: size,
         skip: (pageNumber - 1) * size,
         order: { createdAt: 'DESC' },
       });
-      if (result.length === 0) {
+      if (totalCount === 0 || list.length === 0) {
         throw new EntityNotFoundError(WritingModel, pageNumber);
       }
-      return result;
+      return { list, totalCount };
     } catch (error) {
       throw error;
     }
