@@ -5,7 +5,7 @@ import swaggerSetup from 'utils/swaggerSetup';
 import AppModule from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: { origin: 'http://localhost:3000' } });
   app.setGlobalPrefix('api');
   app.use('/images', express.static(join(__dirname, '../images')));
   swaggerSetup(app);

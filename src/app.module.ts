@@ -12,7 +12,7 @@ import HttpExceptionFilter from 'filter/httpExceptionFilter';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: process.env.NODE_ENV === 'dev' ? 'dev.env' : 'prod.env',
+      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.prod',
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('dev', 'prod').required(),
