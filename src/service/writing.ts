@@ -68,15 +68,15 @@ class WritingService {
     }
   }
 
-  private isSubset<O extends { [key: string]: any }>(superset: O, subset: O) {
+  private isSubset(writing: WritingModel, updateData: Partial<WritingRequestDto>) {
     let count = 0;
-    const subsetKeys = Object.keys(subset);
-    subsetKeys.forEach((key) => {
-      if (superset[key] === subset[key]) {
+    const updateDataKeys = Object.keys(updateData);
+    updateDataKeys.forEach((key) => {
+      if (writing[key] === updateData[key]) {
         count += 1;
       }
     });
-    return count === subsetKeys.length;
+    return count === updateDataKeys.length;
   }
 
   async deleteWriting(id: string): Promise<void> {

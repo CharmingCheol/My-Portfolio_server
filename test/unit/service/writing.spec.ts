@@ -108,76 +108,58 @@ describe('WritingService', () => {
 
   describe('updateWriting', () => {
     const id = '1';
-    const foundWriting: WritingModel = { content: 'content', title: 'title', id: '1', createdAt: new Date() };
-
-    it('updateWriting 호출 시 repository.udpate가 호출 된다', () => {
-      writingService.updateWriting(id, { content: 'content', title: 'title' });
-      expect(repositoryMock.findOne).toHaveBeenCalledWith({ id });
-    });
+    const writing: WritingModel = { content: 'content', title: 'title', id: '1', createdAt: new Date() };
 
     it('findOne의 검색 결과가 없을 경우 EntityNotFoundError를 throw 한다', () => {
-      repositoryMock.findOne.mockReturnValue(undefined);
-      expect(
-        async () => await writingService.updateWriting(id, { content: 'content', title: 'title' }),
-      ).rejects.toThrowError(new EntityNotFoundError(WritingModel, id));
+      const error = new EntityNotFoundError(WritingModel, id);
+      repositoryMock.findOne.mockReturnValue(null);
+      expect(async () => await writingService.updateWriting(id, null)).rejects.toThrowError(error);
     });
 
-    describe('업데이트 데이터가 findOne으로 찾은 게시글에 포함되어 있는 경우 BadRequestException를 던진다', () => {
-      it('content data', () => {
-        repositoryMock.findOne.mockReturnValue(foundWriting);
-        expect(async () => await writingService.updateWriting(id, { content: 'content' })).rejects.toThrowError(
-          new BadRequestException(),
-        );
+    describe('이미 저장 된 데이터로 업데이트 하려는 경우 BadRequestException를 던진다', () => {
+      const error = new BadRequestException();
+
+      it('content가 같은 경우', () => {
+        repositoryMock.findOne.mockReturnValue(writing);
+        expect(async () => await writingService.updateWriting(id, { content: 'content' })).rejects.toThrowError(error);
       });
 
-      it('title data', () => {
-        repositoryMock.findOne.mockReturnValue(foundWriting);
-        expect(async () => await writingService.updateWriting(id, { title: 'title' })).rejects.toThrowError(
-          new BadRequestException(),
-        );
+      it('title이 같은 경우', () => {
+        repositoryMock.findOne.mockReturnValue(writing);
+        expect(async () => await writingService.updateWriting(id, { title: 'title' })).rejects.toThrowError(error);
       });
 
-      it('full data', () => {
-        repositoryMock.findOne.mockReturnValue(foundWriting);
-        expect(
-          async () => await writingService.updateWriting(id, { content: 'content', title: 'title' }),
-        ).rejects.toThrowError(new BadRequestException());
+      it('모든 데이터가 같은 경우', () => {
+        const updateData: WritingRequestDto = { content: writing.content, title: writing.title };
+        repositoryMock.findOne.mockReturnValue(writing);
+        expect(async () => await writingService.updateWriting(id, updateData)).rejects.toThrowError(error);
       });
-    });
-
-    it('게시글을 찾은 경우 repository.save를 호출 한다', async () => {
-      const updateData: Partial<WritingRequestDto> = { content: 'cvcvcv', title: 'asasas' };
-      repositoryMock.findOne.mockReturnValue(foundWriting);
-      await writingService.updateWriting(id, updateData);
-      expect(repositoryMock.save).toHaveBeenCalledWith({ ...foundWriting, ...updateData });
     });
 
     it('updateData에 맞게 게시글 데이터가 업데이트 된다', async () => {
-      const updateData: Partial<WritingRequestDto> = { content: 'cvcvcv', title: 'asasas' };
-      repositoryMock.findOne.mockReturnValue(foundWriting);
-      repositoryMock.save.mockReturnValue({ ...foundWriting, ...updateData });
-      const result = await writingService.updateWriting(id, updateData);
-      expect(result).toStrictEqual({ ...foundWriting, ...updateData });
+      const updateData: WritingRequestDto = { content: 'newContent', title: 'newTitle' };
+      const result: WritingModel = { ...writing, ...updateData };
+      repositoryMock.findOne.mockReturnValue(writing);
+      repositoryMock.save.mockReturnValue(result);
+      expect(await writingService.updateWriting(id, updateData)).toStrictEqual(result);
     });
 
     it('예상치 못하게 findOne에서 문제가 생길 경우 에러를 던진다', () => {
-      repositoryMock.findOne.mockRejectedValue(new Error('unexcepted error'));
-      expect(async () => await writingService.updateWriting(id, { content: 'content' })).rejects.toThrowError(
-        'unexcepted error',
-      );
+      const error = new Error('unexcepted error');
+      repositoryMock.findOne.mockRejectedValue(error);
+      expect(async () => await writingService.updateWriting(id, { title: 'title' })).rejects.toThrowError(error);
     });
 
     it('예상치 못하게 save에서 문제가 생길 경우 에러를 던진다', () => {
-      repositoryMock.save.mockRejectedValue(new Error('unexcepted error'));
-      expect(async () => await writingService.updateWriting(id, { title: 'title' })).rejects.toThrowError(
-        'unexcepted error',
-      );
+      const error = new Error('unexcepted error');
+      repositoryMock.save.mockRejectedValue(error);
+      expect(async () => await writingService.updateWriting(id, { title: 'title' })).rejects.toThrowError(error);
     });
   });
 
   describe('deleteWriting', () => {
     const id = '1';
-    const foundWriting: WritingModel = { content: 'content', title: 'title', id: '1', createdAt: new Date() };
+    const writing: WritingModel = { content: 'content', title: 'title', id: '1', createdAt: new Date() };
 
     it('updateWriting 호출 시 repository.udpate가 호출 된다', () => {
       writingService.deleteWriting(id);
@@ -192,7 +174,7 @@ describe('WritingService', () => {
     });
 
     it('게시글을 찾은 경우 repository.delete를 호출 한다', async () => {
-      repositoryMock.findOne.mockReturnValue(foundWriting);
+      repositoryMock.findOne.mockReturnValue(writing);
       await writingService.deleteWriting(id);
       expect(repositoryMock.delete).toHaveBeenCalledWith(id);
     });
