@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import ImageController from 'controller/image';
-import ImageService from 'service/image';
+import AwsS3Service from 'service/aws-s3';
 
 @Module({
   imports: [ConfigModule],
-  providers: [ImageService],
+  providers: [AwsS3Service],
   controllers: [ImageController],
 })
 class ImageModule {}

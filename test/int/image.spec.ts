@@ -1,6 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
+
 import AppModule from 'app.module';
 
 describe('ImageController', () => {
@@ -20,39 +21,30 @@ describe('ImageController', () => {
     await app.close();
   });
 
-  describe(`${prefix}/writing`, () => {
+  describe(`${prefix}/writings/contents`, () => {
+    const path = 'writings/contents';
+
     it('File 데이터가 없는 경우 400 HttpCode를 반환 한다', async () => {
-      const result = await request(app.getHttpServer()).post(`${prefix}/writing`);
+      const result = await request(app.getHttpServer()).post(`${prefix}/${path}`);
       expect(result.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it('파일 확장자가 이미지가 아닐 경우 400 HttpCode를 반환 한다', async () => {
-      const exe = 'md';
-      const filePath = `test/fixtures/test.${exe}`;
-      const result = await request(app.getHttpServer()).post(`${prefix}/writing`).attach('writing', filePath);
+    it('이미지 확장자가 아닐 경우 400 HttpCode를 반환 한다', async () => {
+      const file = 'test/fixtures/test.md';
+      const result = await request(app.getHttpServer()).post(`${prefix}/${path}`).attach('writing', file);
       expect(result.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it('filed가 writing이 아닐 경우 400 HttpCode를 반환 한다', async () => {
-      const field = 'not_writing';
-      const filePath = `test/fixtures/test.jpg`;
-      const result = await request(app.getHttpServer()).post(`${prefix}/writing`).attach(field, filePath);
+    it('field가 writing이 아닐 경우 400 HttpCode를 반환 한다', async () => {
+      const file = 'test/fixtures/test.jpg';
+      const result = await request(app.getHttpServer()).post(`${prefix}/${path}`).attach('foo', file);
       expect(result.statusCode).toBe(HttpStatus.BAD_REQUEST);
     });
 
-    it('이미지 파일을 받은 경우 정상적으로 저장 된다', async () => {
-      const fileName = 'test';
-      const filePath = `test/fixtures/${fileName}.jpg`;
-      const result = await request(app.getHttpServer()).post(`${prefix}/writing`).attach('writing', filePath);
-      expect(result.body.path).toContain(fileName);
-      expect(result.statusCode).toBe(HttpStatus.OK);
-    });
-
-    it('파일 이름이 한글인 경우, 인코딩 된 형태로 저장 된다', async () => {
-      const fileName = '테스트';
-      const filePath = `test/fixtures/${fileName}.jpg`;
-      const result = await request(app.getHttpServer()).post(`${prefix}/writing`).attach('writing', filePath);
-      expect(result.body.path).toContain(encodeURIComponent(fileName));
+    it('이미지 파일 업로드에 성공 할 경우 경로를 반환 된다', async () => {
+      const file = 'test/fixtures/test.jpg';
+      const result = await request(app.getHttpServer()).post(`${prefix}/${path}`).attach('writing', file);
+      expect(result.body.path).toContain('amazon');
       expect(result.statusCode).toBe(HttpStatus.OK);
     });
   });
