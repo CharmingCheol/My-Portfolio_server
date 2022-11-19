@@ -8,6 +8,8 @@ import WritingModel from 'model/writing';
 import { WritingRequestDto } from 'dto/writing';
 import { WritingPagination } from 'types/writing';
 
+import { loggerMockFactory } from '../../fixtures/log-mock';
+
 type MockType<T> = {
   [P in keyof T]?: jest.Mock<any>;
 };
@@ -19,11 +21,6 @@ const repositoryMockFactory: () => RepositoryMock = jest.fn(() => ({
   findOne: jest.fn((entity) => entity),
   save: jest.fn((entity) => entity),
   delete: jest.fn((entity) => entity),
-}));
-
-const loggerMockFactory: () => MockType<ConsoleLogger> = jest.fn(() => ({
-  log: jest.fn((entity) => entity),
-  error: jest.fn((entity) => entity),
 }));
 
 describe('WritingService', () => {
