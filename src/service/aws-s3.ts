@@ -1,5 +1,5 @@
 import { Injectable, ConsoleLogger } from '@nestjs/common';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { fromIni } from '@aws-sdk/credential-providers';
 
@@ -16,15 +16,21 @@ class AwsS3Service {
 
   public async upload(file: Express.Multer.File): Promise<string> {
     try {
-      const command = this.createPutCommand(file);
-      await this.S3Client.send(command);
-      const signedUrl = await getSignedUrl(this.S3Client, command, { expiresIn: 3600 });
+      await this.S3Client.send(this.createPutCommand(file));
+      const signedUrl = await getSignedUrl(this.S3Client, this.createGetCommand(file), { expiresIn: 3600 });
       this.logger.log(signedUrl);
       return signedUrl;
     } catch (error) {
       this.logger.error(error);
       throw error;
     }
+  }
+
+  private createGetCommand(file: Express.Multer.File) {
+    return new GetObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: file.originalname,
+    });
   }
 
   private createPutCommand(file: Express.Multer.File) {
