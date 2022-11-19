@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConsoleLogger } from '@nestjs/common';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { fromIni } from '@aws-sdk/credential-providers';
@@ -7,7 +7,7 @@ import { fromIni } from '@aws-sdk/credential-providers';
 class AwsS3Service {
   private S3Client: S3Client;
 
-  constructor() {
+  constructor(private logger: ConsoleLogger) {
     this.S3Client = new S3Client({
       region: 'ap-northeast-2',
       credentials: fromIni({ profile: 'default' }),
@@ -18,8 +18,11 @@ class AwsS3Service {
     try {
       const command = this.createPutCommand(file);
       await this.S3Client.send(command);
-      return await getSignedUrl(this.S3Client, command, { expiresIn: 3600 });
+      const signedUrl = await getSignedUrl(this.S3Client, command, { expiresIn: 3600 });
+      this.logger.log(signedUrl);
+      return signedUrl;
     } catch (error) {
+      this.logger.error(error);
       throw error;
     }
   }

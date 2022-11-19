@@ -1,4 +1,4 @@
-import { Controller, HttpCode, HttpStatus, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, HttpCode, HttpStatus, Post, UploadedFile, UseInterceptors, ConsoleLogger } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Express } from 'express';
@@ -11,7 +11,9 @@ import AwsS3Service from 'service/aws-s3';
 @Controller('images')
 @ApiTags('Images API')
 class ImageController {
-  constructor(private awsS3Service: AwsS3Service) {}
+  constructor(private logger: ConsoleLogger, private awsS3Service: AwsS3Service) {
+    this.logger.setContext('WritingController');
+  }
 
   @Post('writings/contents')
   @HttpCode(HttpStatus.OK)
@@ -21,6 +23,7 @@ class ImageController {
   public async uploadWritingContentImage(
     @UploadedFile(new FileNullValiationPipe(), new ImageExtensionCheckerPipe()) file: Express.Multer.File,
   ) {
+    this.logger.log(`POST /images/writings/contents - ${file}`);
     return { path: await this.awsS3Service.upload(file) };
   }
 }

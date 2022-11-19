@@ -1,8 +1,10 @@
 import { Test } from '@nestjs/testing';
+import { ConsoleLogger } from '@nestjs/common';
 import * as S3RequestPresigner from '@aws-sdk/s3-request-presigner';
 
 import AWSS3Service from 'service/aws-s3';
 import createFileMock from '../../fixtures/file-mock';
+import { loggerMockFactory } from '../../fixtures/log-mock';
 
 jest.mock('@aws-sdk/client-s3');
 jest.mock('@aws-sdk/s3-request-presigner');
@@ -14,7 +16,8 @@ describe('AWSS3Service', () => {
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [AWSS3Service],
+      imports: [ConsoleLogger],
+      providers: [{ provide: ConsoleLogger, useFactory: loggerMockFactory }, AWSS3Service],
     }).compile();
     awsS3Service = moduleRef.get(AWSS3Service);
     getSignedUrlMock = jest.spyOn(S3RequestPresigner, 'getSignedUrl');
