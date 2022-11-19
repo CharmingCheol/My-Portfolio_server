@@ -11,6 +11,7 @@ import {
   Patch,
   Post,
   Query,
+  ConsoleLogger,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
@@ -24,13 +25,16 @@ import { WritingPagination } from 'types/writing';
 @Controller('writings')
 @ApiTags('Writings API')
 class WritingController {
-  constructor(private writingService: WritingService) {}
+  constructor(private logger: ConsoleLogger, private writingService: WritingService) {
+    this.logger.setContext('WritingController');
+  }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'id로 게시글 조회' })
   @ApiResponse({ status: HttpStatus.OK, type: WritingModel })
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<WritingModel> {
+    this.logger.log(`GET /writings/${id}`);
     return await this.writingService.findWritingById(id);
   }
 
@@ -39,6 +43,7 @@ class WritingController {
   @ApiOperation({ summary: '게시글 페이지네이션' })
   @ApiResponse({ status: HttpStatus.OK, type: [WritingModel] })
   async pagination(@Query('page', ParseIntPipe, PageUnderZeroPipe) page: number): Promise<WritingPagination> {
+    this.logger.log(`GET /writings?page=${page}`);
     return await this.writingService.findWritingsByPageNumber(page);
   }
 
@@ -47,6 +52,7 @@ class WritingController {
   @ApiOperation({ summary: '게시글 생성' })
   @ApiResponse({ status: HttpStatus.CREATED, type: WritingModel })
   async create(@Body(new BodyLengthValidationPipe()) data: WritingRequestDto): Promise<WritingModel> {
+    this.logger.log(`POST /writings - ${JSON.stringify(data)}`);
     return await this.writingService.createWriting(data);
   }
 
@@ -58,6 +64,7 @@ class WritingController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new BodyLengthValidationPipe()) data: WritingRequestDto,
   ): Promise<WritingModel> {
+    this.logger.log(`PATCH /writings/${id} - ${JSON.stringify(data)}`);
     return await this.writingService.updateWriting(id, data);
   }
 
@@ -65,6 +72,7 @@ class WritingController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '게시글 삭제' })
   async delete(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    this.logger.log(`DELETE /writings/${id}`);
     await this.writingService.deleteWriting(id);
   }
 }

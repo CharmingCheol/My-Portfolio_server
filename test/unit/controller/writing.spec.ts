@@ -1,4 +1,5 @@
 import { Test } from '@nestjs/testing';
+import { ConsoleLogger } from '@nestjs/common';
 
 import WritingController from 'controller/writing';
 import WritingService from 'service/writing';
@@ -18,6 +19,12 @@ const serviceMockFactory: () => MockType<WritingService> = jest.fn(() => ({
   deleteWriting: jest.fn((entity) => entity),
 }));
 
+const loggerMockFactory: () => MockType<ConsoleLogger> = jest.fn(() => ({
+  setContext: jest.fn((entity) => entity),
+  log: jest.fn((entity) => entity),
+  error: jest.fn((entity) => entity),
+}));
+
 describe('WritingController', () => {
   let writingController: WritingController;
   let writingService: MockType<WritingService>;
@@ -25,7 +32,12 @@ describe('WritingController', () => {
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [WritingController],
-      providers: [WritingService, { provide: WritingService, useFactory: serviceMockFactory }],
+      imports: [ConsoleLogger],
+      providers: [
+        WritingService,
+        { provide: ConsoleLogger, useFactory: loggerMockFactory },
+        { provide: WritingService, useFactory: serviceMockFactory },
+      ],
     }).compile();
     writingController = moduleRef.get(WritingController);
     writingService = moduleRef.get(WritingService);

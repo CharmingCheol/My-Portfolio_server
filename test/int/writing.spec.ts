@@ -1,60 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { getConnection } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
 import * as request from 'supertest';
 
 import AppModule from 'app.module';
 import { WritingRequestDto } from 'dto/writing';
 import WritingModel from 'model/writing';
 
-class Writings {
-  prefix = '/api/writings';
-  app: INestApplication;
-  writings: WritingModel[] = [];
-
-  constructor(app: INestApplication) {
-    this.app = app;
-  }
-
-  async createByCount(count: number) {
-    const data: WritingRequestDto = { content: 'content', title: 'title' };
-    const writings = await Promise.all(
-      Array(count)
-        .fill(0)
-        .map(async () => {
-          const writing = await request(this.app.getHttpServer()).post(`${this.prefix}`).send(data);
-          return writing.body;
-        }),
-    );
-    this.writings = writings;
-    return this;
-  }
-
-  sortCreatedAtDesc() {
-    const writings = [...this.writings].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-    this.writings = writings;
-    return this;
-  }
-
-  slice(start: number, end: number) {
-    this.writings = this.writings.slice(start - 1, end);
-    return this;
-  }
-}
-
 describe('writing controller', () => {
   const prefix = '/api/writings';
   let app: INestApplication;
+  let writingRepository: Repository<WritingModel>;
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
     app = moduleRef.createNestApplication();
+    writingRepository = moduleRef.get('WritingModelRepository');
     app.setGlobalPrefix('api');
     await app.init();
+    await writingRepository.clear();
   });
 
   afterAll(async () => {
@@ -84,20 +50,24 @@ describe('writing controller', () => {
       });
 
       describe('게시글 갯수 10개 이하', () => {
-        it('page가 1인 경우 전체 200 HttpCode를 반환 한다', async () => {
-          await new Writings(app).createByCount(8);
+        it('page가 1인 경우 페이지네이션 데이터를 반환 한다', async () => {
+          await Promise.all(
+            Array(8)
+              .fill(0)
+              .map(async () => await writingRepository.save({ content: 'content', title: 'title' })),
+          );
           const result = await request(app.getHttpServer()).get(`${prefix}?page=1`);
           expect(result.statusCode).toBe(HttpStatus.OK);
-        });
-
-        it('생성일자 기준으로 내림차순 정렬이다', async () => {
-          const { writings } = (await new Writings(app).createByCount(8)).sortCreatedAtDesc();
-          const result = await request(app.getHttpServer()).get(`${prefix}?page=1`);
-          expect(result.body).toStrictEqual(writings);
+          expect(result.body.totalCount).toBe(8);
+          expect(result.body.list.length).toBe(8);
         });
 
         it('page가 2 이상인 경우 404 HttpCode를 반환 한다', async () => {
-          await new Writings(app).createByCount(8);
+          await Promise.all(
+            Array(8)
+              .fill(0)
+              .map(async () => await writingRepository.save({ content: 'content', title: 'title' })),
+          );
           const result = await request(app.getHttpServer()).get(`${prefix}?page=2`);
           expect(result.statusCode).toStrictEqual(HttpStatus.NOT_FOUND);
         });
@@ -105,41 +75,27 @@ describe('writing controller', () => {
 
       describe('게시글 갯수 11개 이상 ~ 20개 이하', () => {
         it('page가 1일 때 가장 최근에 생성 된 게시글 10개를 불러온다', async () => {
-          const totalSize = 17;
-          const { writings } = (await new Writings(app).createByCount(totalSize)).sortCreatedAtDesc().slice(1, 10);
+          await Promise.all(
+            Array(17)
+              .fill(0)
+              .map(async () => await writingRepository.save({ content: 'content', title: 'title' })),
+          );
           const result = await request(app.getHttpServer()).get(`${prefix}?page=1`);
           expect(result.statusCode).toBe(HttpStatus.OK);
-          expect(result.body.length).toBe(10);
-          expect(result.body).toStrictEqual(writings);
+          expect(result.body.totalCount).toBe(17);
+          expect(result.body.list.length).toBe(10);
         });
 
         it('page가 2일 때 나머지 게시글들을 불러온다', async () => {
-          const totalSize = 17;
-          const { writings } = (await new Writings(app).createByCount(totalSize))
-            .sortCreatedAtDesc()
-            .slice(11, totalSize);
+          await Promise.all(
+            Array(17)
+              .fill(0)
+              .map(async () => await writingRepository.save({ content: 'content', title: 'title' })),
+          );
           const result = await request(app.getHttpServer()).get(`${prefix}?page=2`);
           expect(result.statusCode).toBe(HttpStatus.OK);
-          expect(result.body.length).toBe(totalSize - 10);
-          expect(result.body).toStrictEqual(writings);
-        });
-
-        it('게시글 갯수가 20이고 page가 2일 때, 게시글 10개를 불러온다', async () => {
-          const totalSize = 20;
-          const { writings } = (await new Writings(app).createByCount(totalSize))
-            .sortCreatedAtDesc()
-            .slice(11, totalSize);
-          const result = await request(app.getHttpServer()).get(`${prefix}?page=2`);
-          expect(result.statusCode).toBe(HttpStatus.OK);
-          expect(result.body.length).toBe(totalSize - 10);
-          expect(result.body).toStrictEqual(writings);
-        });
-
-        it('게시글 갯수가 20이고 page가 3일 때, 404 HttpCode를 반환 한다', async () => {
-          const totalSize = 20;
-          await new Writings(app).createByCount(totalSize);
-          const result = await request(app.getHttpServer()).get(`${prefix}?page=3`);
-          expect(result.statusCode).toBe(HttpStatus.NOT_FOUND);
+          expect(result.body.totalCount).toBe(17);
+          expect(result.body.list.length).toBe(7);
         });
       });
     });
