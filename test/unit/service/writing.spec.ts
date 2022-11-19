@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { BadRequestException } from '@nestjs/common';
+import { ConsoleLogger, BadRequestException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EntityNotFoundError, Repository } from 'typeorm';
 
@@ -15,11 +15,15 @@ type MockType<T> = {
 type RepositoryMock = MockType<Repository<WritingModel>>;
 
 const repositoryMockFactory: () => RepositoryMock = jest.fn(() => ({
-  count: jest.fn((entity) => entity),
-  find: jest.fn((entity) => entity),
+  findAndCount: jest.fn((entity) => entity),
   findOne: jest.fn((entity) => entity),
   save: jest.fn((entity) => entity),
   delete: jest.fn((entity) => entity),
+}));
+
+const loggerMockFactory: () => MockType<ConsoleLogger> = jest.fn(() => ({
+  log: jest.fn((entity) => entity),
+  error: jest.fn((entity) => entity),
 }));
 
 describe('WritingService', () => {
@@ -28,8 +32,13 @@ describe('WritingService', () => {
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
+      imports: [ConsoleLogger],
       providers: [
         WritingService,
+        {
+          provide: ConsoleLogger,
+          useFactory: loggerMockFactory,
+        },
         {
           provide: getRepositoryToken(WritingModel),
           useFactory: repositoryMockFactory,
@@ -49,15 +58,13 @@ describe('WritingService', () => {
         .fill(0)
         .map(() => new WritingModel());
       const result: WritingPagination = { totalCount, list };
-      repositoryMock.count.mockReturnValue(totalCount);
-      repositoryMock.find.mockReturnValue(list);
+      repositoryMock.findAndCount.mockReturnValue([list, totalCount]);
       expect(await writingService.findWritingsByPageNumber(pageNumber)).toStrictEqual(result);
     });
 
     it('검색 결과가 없을 경우 EntityNotFoundError를 throw 한다', () => {
       const error = new EntityNotFoundError(WritingModel, pageNumber);
-      repositoryMock.count.mockReturnValue(0);
-      repositoryMock.find.mockReturnValue([]);
+      repositoryMock.findAndCount.mockReturnValue([[], 0]);
       expect(async () => await writingService.findWritingsByPageNumber(pageNumber)).rejects.toThrowError(error);
     });
 

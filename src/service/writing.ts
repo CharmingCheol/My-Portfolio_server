@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, ConsoleLogger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityNotFoundError, Repository } from 'typeorm';
 
@@ -9,6 +9,7 @@ import { WritingPagination } from 'types/writing';
 @Injectable()
 class WritingService {
   constructor(
+    private logger: ConsoleLogger,
     @InjectRepository(WritingModel)
     private usersRepository: Repository<WritingModel>,
   ) {}
@@ -16,8 +17,7 @@ class WritingService {
   async findWritingsByPageNumber(pageNumber: number): Promise<WritingPagination> {
     try {
       const size = 10;
-      const totalCount = await this.usersRepository.count();
-      const list = await this.usersRepository.find({
+      const [list, totalCount] = await this.usersRepository.findAndCount({
         take: size,
         skip: (pageNumber - 1) * size,
         order: { createdAt: 'DESC' },
@@ -25,8 +25,10 @@ class WritingService {
       if (totalCount === 0 || list.length === 0) {
         throw new EntityNotFoundError(WritingModel, pageNumber);
       }
+      this.logger.log(JSON.stringify({ list, totalCount }));
       return { list, totalCount };
     } catch (error) {
+      this.logger.error(error);
       throw error;
     }
   }
@@ -37,17 +39,21 @@ class WritingService {
       if (!writing) {
         throw new EntityNotFoundError(WritingModel, id);
       }
+      this.logger.log(JSON.stringify(writing));
       return writing;
     } catch (error) {
+      this.logger.error(error);
       throw error;
     }
   }
 
   async createWriting(data: WritingRequestDto): Promise<WritingModel> {
     try {
-      const result = await this.usersRepository.save(data);
-      return result;
+      const writing = await this.usersRepository.save(data);
+      this.logger.log(JSON.stringify(writing));
+      return writing;
     } catch (error) {
+      this.logger.error(error);
       throw error;
     }
   }
@@ -61,9 +67,11 @@ class WritingService {
       if (this.isSubset(writing, updateData)) {
         throw new BadRequestException();
       }
-      const result = await this.usersRepository.save({ ...writing, ...updateData });
-      return result;
+      const updatedWriting = await this.usersRepository.save({ ...writing, ...updateData });
+      this.logger.log(JSON.stringify(updatedWriting));
+      return updatedWriting;
     } catch (error) {
+      this.logger.error(error);
       throw error;
     }
   }
@@ -85,8 +93,10 @@ class WritingService {
       if (!writing) {
         throw new EntityNotFoundError(WritingModel, id);
       }
+      this.logger.log('delete writing');
       await this.usersRepository.delete(id);
     } catch (error) {
+      this.logger.error(error);
       throw error;
     }
   }
