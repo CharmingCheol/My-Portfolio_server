@@ -12,7 +12,7 @@ import AwsS3Service from 'service/aws-s3';
 @ApiTags('Images API')
 class ImageController {
   constructor(private logger: ConsoleLogger, private awsS3Service: AwsS3Service) {
-    this.logger.setContext('WritingController');
+    this.logger.setContext('ImageController');
   }
 
   @Post('writings/contents')
