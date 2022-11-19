@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, ConsoleLogger } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import WritingController from 'controller/writing';
@@ -6,8 +6,8 @@ import WritingModel from 'model/writing';
 import WritingService from 'service/writing';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([WritingModel])],
-  providers: [WritingService],
+  imports: [ConsoleLogger, TypeOrmModule.forFeature([WritingModel])],
+  providers: [ConsoleLogger, WritingService],
   controllers: [WritingController],
   exports: [TypeOrmModule],
 })
