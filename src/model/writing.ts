@@ -12,7 +12,7 @@ class WritingModel implements Writing {
   @ApiProperty({ example: 'uuid' })
   id: string;
 
-  @Column()
+  @Column({ type: 'text' })
   @ApiProperty({ example: '게시글의 본문입니다.', required: true })
   content: string;
 
