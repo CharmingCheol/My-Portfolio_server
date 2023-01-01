@@ -1,4 +1,5 @@
 import { Injectable, ConsoleLogger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { fromIni } from '@aws-sdk/credential-providers';
@@ -7,7 +8,7 @@ import { fromIni } from '@aws-sdk/credential-providers';
 class AwsS3Service {
   private S3Client: S3Client;
 
-  constructor(private logger: ConsoleLogger) {
+  constructor(private logger: ConsoleLogger, private configService: ConfigService) {
     this.S3Client = new S3Client({
       region: 'ap-northeast-2',
       credentials: fromIni({ profile: 'default' }),
@@ -28,14 +29,14 @@ class AwsS3Service {
 
   private createGetCommand(file: Express.Multer.File) {
     return new GetObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Bucket: this.configService.get('AWS_S3_BUCKET_NAME'),
       Key: file.originalname,
     });
   }
 
   private createPutCommand(file: Express.Multer.File) {
     return new PutObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Bucket: this.configService.get('AWS_S3_BUCKET_NAME'),
       Key: file.originalname,
       Body: file.buffer,
     });
