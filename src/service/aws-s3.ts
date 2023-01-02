@@ -1,7 +1,6 @@
 import { Injectable, ConsoleLogger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { fromIni } from '@aws-sdk/credential-providers';
 
 @Injectable()
@@ -17,21 +16,19 @@ class AwsS3Service {
 
   public async upload(file: Express.Multer.File): Promise<string> {
     try {
-      await this.S3Client.send(this.createPutCommand(file));
-      const signedUrl = await getSignedUrl(this.S3Client, this.createGetCommand(file), { expiresIn: 3600 });
-      this.logger.log(signedUrl);
-      return signedUrl;
+      const imageName = this.createImageName(file.mimetype);
+      await this.S3Client.send(this.createPutCommand({ ...file, originalname: imageName }));
+      return this.getImageUrl(imageName);
     } catch (error) {
       this.logger.error(error);
       throw error;
     }
   }
 
-  private createGetCommand(file: Express.Multer.File) {
-    return new GetObjectCommand({
-      Bucket: this.configService.get('AWS_S3_BUCKET_NAME'),
-      Key: file.originalname,
-    });
+  private createImageName(mimetype: string): string {
+    const filename = new Date().getTime();
+    const extension = mimetype.split('/')[1]; // ex) image/png, image/jpg
+    return `${filename}.${extension}`;
   }
 
   private createPutCommand(file: Express.Multer.File) {
@@ -40,6 +37,11 @@ class AwsS3Service {
       Key: file.originalname,
       Body: file.buffer,
     });
+  }
+
+  private getImageUrl(imageName: string): string {
+    const bucket = this.configService.get('AWS_S3_BUCKET_NAME');
+    return `https://s3.ap-northeast-2.amazonaws.com/${bucket}/${imageName}`;
   }
 }
 
